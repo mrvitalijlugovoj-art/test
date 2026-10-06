@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Тест: какой денежный блок тормозит ваш доход</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0F172A;
+    --card: #1E293B;
+    --card2: #263347;
+    --gold: #D4A853;
+    --gold-light: #F0C97A;
+    --text: #F1F5F9;
+    --muted: #94A3B8;
+    --border: #334155;
+    --radius: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, 'Segoe UI', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: env(safe-area-inset-top, 0) 0 env(safe-area-inset-bottom, 0);
+  }
+
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+
+  .header-badge {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gold);
+    border: 1px solid rgba(212, 168, 83, 0.4);
+    border-radius: 100px;
+    padding: 6px 14px;
+    margin-bottom: 18px;
+  }
+
+  .header h1 {
+    font-size: clamp(23px, 5.2vw, 31px);
+    font-weight: 800;
+    line-height: 1.25;
+    margin-bottom: 12px;
+  }
+
+  .header p {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* PROGRESS */
+  .progress-wrap { margin-bottom: 28px; }
+
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .progress-label { font-size: 13px; color: var(--muted); font-weight: 500; }
+  .progress-count { font-size: 13px; color: var(--gold); font-weight: 700; }
+
+  .progress-track {
+    height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  /* QUESTION */
+  .question-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 32px;
+    border: 1px solid var(--border);
+    animation: fadeUp 0.35s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .question-num {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+
+  .question-text {
+    font-size: clamp(17px, 3.6vw, 20px);
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 26px;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 12px; }
+
+  .option {
+    background: var(--card2);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    text-align: left;
+    width: 100%;
+    color: var(--text);
+    font-family: inherit;
+  }
+
+  .option:hover { border-color: var(--gold); background: #2A3A52; }
+  .option:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }
+  .option.selected { border-color: var(--gold); background: rgba(212, 168, 83, 0.1); }
+
+  .option-letter {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+    color: var(--muted);
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .option.selected .option-letter { background: var(--gold); color: #0F172A; }
+
+  .option-text { font-size: 15px; line-height: 1.45; padding-top: 5px; }
+
+  .btn-next {
+    margin-top: 26px;
+    width: 100%;
+    padding: 16px;
+    background: var(--gold);
+    color: #0F172A;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+    display: none;
+  }
+
+  .btn-next:hover { background: var(--gold-light); transform: translateY(-1px); }
+  .btn-next:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 3px; }
+  .btn-next.visible { display: block; animation: fadeUp 0.3s ease; }
+
+  /* RESULT */
+  .result-card { display: none; animation: fadeUp 0.5s ease; }
+  .result-card.visible { display: block; }
+
+  .result-header { text-align: center; margin-bottom: 28px; }
+  .result-icon { font-size: 54px; margin-bottom: 14px; display: block; }
+  .result-eyebrow { font-size: 14px; font-weight: 600; color: var(--gold); margin-bottom: 8px; }
+
+  .result-title {
+    font-size: clamp(23px, 5.2vw, 30px);
+    font-weight: 800;
+    line-height: 1.2;
+  }
+
+  .result-subtitle { font-size: 15px; color: var(--muted); margin-top: 10px; line-height: 1.5; }
+
+  /* Карта блоков: главный акцент результата */
+  .map {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .map-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .map-note { font-size: 13px; color: var(--muted); margin-bottom: 18px; line-height: 1.5; }
+
+  .bar-row { margin-bottom: 14px; }
+  .bar-row:last-child { margin-bottom: 0; }
+
+  .bar-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 6px;
+    font-size: 14px;
+  }
+
+  .bar-name { color: var(--muted); font-weight: 500; }
+  .bar-value { color: var(--muted); font-weight: 600; flex-shrink: 0; }
+  .bar-row.main .bar-name, .bar-row.main .bar-value { color: var(--gold-light); font-weight: 700; }
+
+  .bar-track { height: 10px; background: var(--border); border-radius: 10px; overflow: hidden; }
+
+  .bar-fill {
+    height: 100%;
+    width: 0;
+    background: #51627D;
+    border-radius: 10px;
+    transition: width 1s cubic-bezier(.2,.8,.2,1);
+  }
+
+  .bar-row.main .bar-fill { background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+
+  .result-body {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 28px;
+    border: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+
+  .result-section-label { font-size: 13px; font-weight: 700; color: var(--gold); margin-bottom: 10px; }
+
+  .result-traits { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+
+  .trait {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .result-description { font-size: 15px; line-height: 1.7; margin-bottom: 24px; }
+
+  .result-advice {
+    background: rgba(212, 168, 83, 0.08);
+    border: 1px solid rgba(212, 168, 83, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .result-advice-label { font-size: 13px; font-weight: 700; color: var(--gold); margin-bottom: 8px; }
+  .result-advice p { font-size: 15px; line-height: 1.6; }
+
+  .cta-block {
+    background: linear-gradient(135deg, #1a2a45, #1E293B);
+    border: 1px solid var(--gold);
+    border-radius: var(--radius);
+    padding: 28px;
+    text-align: center;
+  }
+
+  .cta-block strong { display: block; font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+  .cta-block p { font-size: 15px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
+
+  .cta-block a { color: var(--gold-light); text-decoration: underline; text-underline-offset: 4px; }
+  .cta-block a:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 3px; border-radius: 4px; }
+
+  .btn-restart {
+    display: block;
+    margin: 20px auto 0;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .btn-restart:hover { color: var(--text); }
+
+  @media (max-width: 480px) {
+    .question-card { padding: 24px 18px; }
+    .result-body, .map { padding: 20px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .question-card, .result-card, .btn-next.visible { animation: none; }
+    .bar-fill, .progress-fill { transition: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header" id="header">
+    <div class="header-badge">Бесплатный тест</div>
+    <h1>Какой денежный блок тормозит ваш доход?</h1>
+    <p>6 вопросов, и вы узнаете, какая внутренняя установка сильнее всего удерживает ваш доход на месте</p>
+  </div>
+
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-meta">
+      <span class="progress-label">Прогресс</span>
+      <span class="progress-count" id="progressCount">1 / 6</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width: 16.6%"></div>
+    </div>
+  </div>
+
+  <div id="questionArea"></div>
+  <div class="result-card" id="resultCard"></div>
+
+</div>
+
+<script>
+// A: страх больших денег, B: страх поднять цену, C: неловкость брать деньги за лёгкое, D: вина перед близкими
+const questions = [
+  {
+    text: "Вам предлагают проект, который почти вдвое увеличит ваш доход. Что вы чувствуете в первую очередь?",
+    options: [
+      { text: "Думаю, как назвать цену и не напугать заказчика", block: "B" },
+      { text: "Радуюсь, но сразу приходит тревога: вдруг всё рухнет", block: "A" },
+      { text: "Представляю, что скажут близкие, когда узнают о таком росте", block: "D" },
+      { text: "Сомневаюсь: слишком легко для такой суммы, где подвох", block: "C" }
+    ]
+  },
+  {
+    text: "Клиент говорит «дорого». Что происходит внутри?",
+    options: [
+      { text: "Вспоминаю, что у многих знакомых таких денег нет, и становится неловко просить столько", block: "D" },
+      { text: "Хочется сразу сделать скидку, лишь бы он остался", block: "B" },
+      { text: "Подтверждается мысль, что большие деньги достаются только избранным", block: "A" },
+      { text: "Мелькает мысль, что за такую лёгкую работу и правда многовато", block: "C" }
+    ]
+  },
+  {
+    text: "Какая фраза откликается вам сильнее всего?",
+    options: [
+      { text: "Деньги нужно зарабатывать тяжёлым трудом, а не лёгкостью", block: "C" },
+      { text: "Если поднять цену, клиенты уйдут", block: "B" },
+      { text: "Нельзя жить намного лучше, чем живут близкие", block: "D" },
+      { text: "Большие деньги приносят больше проблем, чем радости", block: "A" }
+    ]
+  },
+  {
+    text: "Когда вы собираетесь поднять свою цену, что происходит?",
+    options: [
+      { text: "Переживаю, как это будет выглядеть в глазах людей, которые давно меня знают", block: "D" },
+      { text: "Думаю, что рынок перегрет и высокие цены не для меня", block: "A" },
+      { text: "Представляю пустой календарь и откладываю", block: "B" },
+      { text: "Чувствую, что моя работа не стоит дороже, раз она мне даётся легко", block: "C" }
+    ]
+  },
+  {
+    text: "Вы получили крупную сумму. Что с ней происходит чаще всего?",
+    options: [
+      { text: "Чувствую неловкость, будто деньги достались незаслуженно, и хочется компенсировать это услугой или подарком", block: "C" },
+      { text: "Быстро уходит, будто сама ищет, куда утечь", block: "A" },
+      { text: "Трачу на близких больше, чем на себя, чтобы разделить с ними радость", block: "D" },
+      { text: "Откладываю про запас: уверен, что клиенты скоро перестанут платить столько", block: "B" }
+    ]
+  },
+  {
+    text: "Закончите фразу тем, что приходит первым: «Если я начну зарабатывать намного больше, то...»",
+    options: [
+      { text: "...от меня уйдут клиенты, и всё вернётся назад", block: "B" },
+      { text: "...я отдалюсь от людей, которые мне дороги", block: "D" },
+      { text: "...что-то обязательно пойдёт не так", block: "A" },
+      { text: "...получится, что я беру деньги за то, что делаю без усилий, и это нечестно", block: "C" }
+    ]
+  }
+];
+
+const blocks = {
+  A: {
+    name: "Страх больших денег",
+    short: "Страх больших денег",
+    icon: "🏔️",
+    subtitle: "Часть вас тормозит рост, пока он не стал слишком заметным",
+    traits: ["Тревога перед ростом дохода", "Деньги быстро утекают", "Откладывание крупных проектов", "Недоверие к богатым"],
+    description: "Когда доход приближается к новому уровню, внутри появляется тревога. Выгодное предложение вдруг кажется рискованным, большой проект откладывается, а деньги неожиданно находят, куда уйти. Внутри живёт убеждение, что большие деньги приносят проблемы: зависть, одиночество, потерю близких, необходимость стать кем-то другим. Психика честно старается вас защитить, и защита срабатывает как раз в тот момент, когда вы подходите к росту.",
+    advice: "Закончите вслух фразу «Если я буду зарабатывать в три раза больше, то...» и запишите первые пять ответов. Среди них окажутся страхи, которые вас тормозят. Выберите один и проверьте его на фактах: что из этого реально случилось с людьми, которых вы знаете."
+  },
+  B: {
+    name: "Страх поднять цену",
+    short: "Страх поднять цену",
+    icon: "🏷️",
+    subtitle: "Вы заранее соглашаетесь на меньшее, чем стоите",
+    traits: ["Скидки до возражения", "Картина пустого календаря", "Долгие оправдания цены", "Отложенное повышение"],
+    description: "Вы знаете, что можете брать больше, но каждый раз, когда дело доходит до новой цифры, внутри включается картина пустого календаря. Вы снижаете цену заранее, отвечаете на «дорого» скидкой и объясняете себя дольше, чем нужно. В основе лежит страх отвержения: вам важнее, чтобы клиент остался, чем чтобы ваша работа стоила своих денег. На практике после повышения уходят единицы, и чаще всего те, с кем и так было тяжело.",
+    advice: "Возьмите свою текущую цену и поднимите её на 15 процентов только для следующего нового клиента. Назовите вслух, без объяснений и оправданий. Один такой разговор покажет реальную реакцию рынка, а не ту, которую рисует тревога."
+  },
+  C: {
+    name: "Неловкость брать деньги за лёгкое",
+    short: "Неловкость брать за лёгкое",
+    icon: "🎁",
+    subtitle: "Лёгкость вашей работы кажется вам поводом брать меньше",
+    traits: ["Работа сверх оплаты", "Обесценивание результата", "Фраза «да там делов то»", "Неловкость при счёте"],
+    description: "Если работа даётся вам легко, внутри появляется ощущение, что брать за неё деньги нечестно. Вы дарите лишнее, не включаете в цену часть работы и обесцениваете результат фразой «да там делов то». Это убеждение растёт из идеи, что деньги положено зарабатывать тяжёлым трудом. Клиент же платит за результат и за годы опыта, которые стоят за вашей лёгкостью. Ему всё равно, сколько усилий вы потратили.",
+    advice: "Выпишите три последних результата, которые вы дали клиентам, и рядом отметьте, сколько лет практики и сколько ошибок понадобилось, чтобы делать это легко. Эта запись пригодится в тот момент, когда захочется сказать «да это ерунда»."
+  },
+  D: {
+    name: "Вина перед близкими",
+    short: "Вина перед близкими",
+    icon: "🤝",
+    subtitle: "Верность своему кругу оказывается сильнее желания расти",
+    traits: ["Скрытность об успехах", "Траты на других больше, чем на себя", "Страх отдалиться", "Потолок «как у всех»"],
+    description: "Когда у вас появляется больше, чем у людей рядом, включается чувство вины. Вы скрываете успехи, выбираете скромность при близких, тратите на других больше, чем на себя, или ловите мысль, что нельзя уходить слишком далеко вперёд. Лояльность к своему кругу работает как невидимая граница: доход доходит до неё и останавливается, потому что за ней вы перестаёте быть «такими же, как все».",
+    advice: "Назовите вслух, перед кем именно вы чувствуете вину и за что. Затем письменно ответьте: что конкретно этот человек потеряет, если вы начнёте зарабатывать больше? Чаще всего ответ получается пустым, и это первый шаг к тому, чтобы снять груз."
+  }
+};
+
+let current = 0;
+let answers = [];
+let selectedOption = null;
+
+function renderQuestion() {
+  const q = questions[current];
+  const letters = ['А', 'Б', 'В', 'Г'];
+  selectedOption = null;
+
+  const html = `
+    <div class="question-card">
+      <div class="question-num">Вопрос ${current + 1}</div>
+      <div class="question-text">${q.text}</div>
+      <div class="options">
+        ${q.options.map((o, i) => `
+          <button type="button" class="option" data-index="${i}">
+            <span class="option-letter">${letters[i]}</span>
+            <span class="option-text">${o.text}</span>
+          </button>
+        `).join('')}
+      </div>
+      <button type="button" class="btn-next" id="btnNext">
+        ${current < questions.length - 1 ? 'Следующий вопрос' : 'Узнать мой блок'}
+      </button>
+    </div>
+  `;
+
+  document.getElementById('questionArea').innerHTML = html;
+
+  document.querySelectorAll('.option').forEach(el => {
+    el.addEventListener('click', () => selectOption(el, Number(el.dataset.index)));
+  });
+  document.getElementById('btnNext').addEventListener('click', nextQuestion);
+
+  updateProgress();
+}
+
+function selectOption(el, index) {
+  document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedOption = index;
+  document.getElementById('btnNext').classList.add('visible');
+}
+
+function nextQuestion() {
+  if (selectedOption === null) return;
+  answers.push(questions[current].options[selectedOption].block);
+  current++;
+  if (current < questions.length) {
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function updateProgress() {
+  const pct = ((current + 1) / questions.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressCount').textContent = (current + 1) + ' / ' + questions.length;
+}
+
+function calcMain(counts) {
+  const max = Math.max(...Object.values(counts));
+  const leaders = Object.keys(counts).filter(k => counts[k] === max);
+  if (leaders.length === 1) return leaders[0];
+  // при равенстве выбираем тот блок, который прозвучал в последнем, самом честном ответе
+  const last = answers[answers.length - 1];
+  return leaders.includes(last) ? last : leaders[0];
+}
+
+function showResult() {
+  const counts = { A: 0, B: 0, C: 0, D: 0 };
+  answers.forEach(b => counts[b]++);
+  const main = calcMain(counts);
+  const r = blocks[main];
+  const total = answers.length;
+
+  document.getElementById('questionArea').innerHTML = '';
+  document.getElementById('progressWrap').style.display = 'none';
+  document.getElementById('header').style.display = 'none';
+
+  const order = Object.keys(counts).sort((a, b) => {
+    if (a === main) return -1;
+    if (b === main) return 1;
+    return counts[b] - counts[a];
+  });
+
+  const bars = order.map(k => {
+    const pct = Math.round((counts[k] / total) * 100);
+    return `
+      <div class="bar-row ${k === main ? 'main' : ''}">
+        <div class="bar-head">
+          <span class="bar-name">${blocks[k].short}</span>
+          <span class="bar-value">${pct}%</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" data-w="${pct}"></div></div>
+      </div>`;
+  }).join('');
+
+  const traits = r.traits.map(t => `<span class="trait">${t}</span>`).join('');
+
+  const html = `
+    <div class="result-header">
+      <span class="result-icon">${r.icon}</span>
+      <div class="result-eyebrow">Ваш главный денежный блок</div>
+      <div class="result-title">${r.name}</div>
+      <div class="result-subtitle">${r.subtitle}</div>
+    </div>
+
+    <div class="map">
+      <div class="map-title">Как распределились ваши ответы</div>
+      <div class="map-note">У большинства людей работает сразу несколько блоков. Главный тормозит сильнее остальных.</div>
+      ${bars}
+    </div>
+
+    <div class="result-body">
+      <div class="result-section-label">Как он проявляется</div>
+      <div class="result-traits">${traits}</div>
+
+      <div class="result-section-label">Что происходит</div>
+      <div class="result-description">${r.description}</div>
+
+      <div class="result-advice">
+        <div class="result-advice-label">Конкретный шаг прямо сейчас</div>
+        <p>${r.advice}</p>
+      </div>
+    </div>
+
+    <div class="cta-block">
+      <strong>Хотите снять свой блок?</strong>
+      <p>Провожу бесплатную диагностику, видеовстреча 30 минут. Разберём, откуда взялся ваш блок и что с ним делать конкретно в вашей ситуации.</p>
+      <p style="font-size:16px; color: var(--gold-light); font-weight: 600; margin-bottom: 8px;">Напишите мне в личку:<br>👉 <a href="https://t.me/m/o8FMNCk5OTJk" target="_blank" rel="noopener">@marina_businesss</a></p>
+      <p style="font-size:22px; font-weight:800; letter-spacing: 0.5px; margin-bottom: 0;"><a href="https://t.me/m/o8FMNCk5OTJk" target="_blank" rel="noopener">«Хочу разбор»</a></p>
+    </div>
+
+    <button type="button" class="btn-restart" id="btnRestart">Пройти тест заново</button>
+  `;
+
+  const resultCard = document.getElementById('resultCard');
+  resultCard.innerHTML = html;
+  resultCard.classList.add('visible');
+  document.getElementById('btnRestart').addEventListener('click', restart);
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.bar-fill').forEach(el => {
+        el.style.width = el.dataset.w + '%';
+      });
+    });
+  });
+}
+
+function restart() {
+  current = 0;
+  answers = [];
+  selectedOption = null;
+  const resultCard = document.getElementById('resultCard');
+  resultCard.classList.remove('visible');
+  resultCard.innerHTML = '';
+  document.getElementById('progressWrap').style.display = 'block';
+  document.getElementById('header').style.display = 'block';
+  renderQuestion();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+renderQuestion();
+</script>
+</body>
+</html>
