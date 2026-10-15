@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Тест: какой финансовый сценарий управляет вашим доходом</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0F172A;
+    --card: #1E293B;
+    --card2: #263347;
+    --gold: #D4A853;
+    --gold-light: #F0C97A;
+    --text: #F1F5F9;
+    --muted: #94A3B8;
+    --border: #334155;
+    --green: #34D399;
+    --radius: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: env(safe-area-inset-top, 0) 0 env(safe-area-inset-bottom, 0);
+  }
+
+  .wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .header-eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+
+  .header h1 {
+    font-size: clamp(22px, 5vw, 30px);
+    font-weight: 800;
+    line-height: 1.25;
+    margin-bottom: 12px;
+  }
+
+  .header p {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* PROGRESS */
+  .progress-wrap {
+    margin-bottom: 32px;
+  }
+
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .progress-label {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .progress-count {
+    font-size: 13px;
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  .progress-track {
+    height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    border-radius: 4px;
+    transition: width 0.4s ease;
+  }
+
+  /* QUESTION CARD */
+  .question-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 32px;
+    border: 1px solid var(--border);
+    animation: fadeUp 0.35s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .question-num {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+
+  .question-text {
+    font-size: clamp(17px, 3.5vw, 20px);
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 28px;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .option {
+    background: var(--card2);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-align: left;
+  }
+
+  .option:hover {
+    border-color: var(--gold);
+    background: #2A3A52;
+  }
+
+  .option.selected {
+    border-color: var(--gold);
+    background: rgba(212, 168, 83, 0.1);
+  }
+
+  .option-letter {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+
+  .option.selected .option-letter {
+    background: var(--gold);
+    color: #0F172A;
+  }
+
+  .option-text {
+    font-size: 15px;
+    line-height: 1.4;
+    color: var(--text);
+  }
+
+  .btn-next {
+    margin-top: 28px;
+    width: 100%;
+    padding: 16px;
+    background: var(--gold);
+    color: #0F172A;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: none;
+  }
+
+  .btn-next:hover { background: var(--gold-light); transform: translateY(-1px); }
+  .btn-next.visible { display: block; animation: fadeUp 0.3s ease; }
+
+  /* RESULT */
+  .result-card {
+    display: none;
+    animation: fadeUp 0.5s ease;
+  }
+
+  .result-card.visible { display: block; }
+
+  .result-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .result-icon {
+    font-size: 56px;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .result-eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+
+  .result-title {
+    font-size: clamp(22px, 5vw, 28px);
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+
+  .result-subtitle {
+    font-size: 15px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+
+  .result-body {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 28px;
+    border: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+
+  .result-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+
+  .result-description {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text);
+    margin-bottom: 24px;
+  }
+
+  .result-advice {
+    background: rgba(212, 168, 83, 0.08);
+    border: 1px solid rgba(212, 168, 83, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .result-advice-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 8px;
+  }
+
+  .result-advice p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .result-traits {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .trait {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .cta-block {
+    background: linear-gradient(135deg, #1a2a45, #1E293B);
+    border: 1px solid var(--gold);
+    border-radius: var(--radius);
+    padding: 28px;
+    text-align: center;
+  }
+
+  .cta-block p {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .cta-block strong {
+    display: block;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .btn-cta {
+    display: inline-block;
+    padding: 14px 32px;
+    background: var(--gold);
+    color: #0F172A;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-cta:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+  .btn-restart {
+    display: block;
+    margin: 20px auto 0;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .btn-restart:hover { color: var(--text); }
+
+  @media (max-width: 480px) {
+    .question-card { padding: 24px 18px; }
+    .result-body { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="header" id="header">
+    <div class="header-eyebrow">Бесплатный тест</div>
+    <h1>Какой финансовый сценарий управляет вашим доходом?</h1>
+    <p>5 вопросов — и вы узнаете, что именно держит ваш доход на месте, даже когда вы много работаете</p>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-meta">
+      <span class="progress-label">Прогресс</span>
+      <span class="progress-count" id="progressCount">1 / 5</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width: 20%"></div>
+    </div>
+  </div>
+
+  <!-- QUESTION -->
+  <div id="questionArea"></div>
+
+  <!-- RESULT -->
+  <div class="result-card" id="resultCard"></div>
+
+</div>
+
+<script>
+const questions = [
+  {
+    text: "Когда клиент говорит «дорого», ваша первая реакция:",
+    options: [
+      { text: "Сразу предлагаю скидку или делаю цену меньше", score: 0 },
+      { text: "Объясняю, что входит в цену, и держу её", score: 2 },
+      { text: "Теряюсь и не знаю, что ответить", score: 1 },
+      { text: "Предлагаю более дешёвый вариант без объяснений", score: 0 },
+    ]
+  },
+  {
+    text: "Как вы обычно считаете, сколько заработали в этом месяце?",
+    options: [
+      { text: "Точно знаю цифру с учётом всех расходов", score: 2 },
+      { text: "Смотрю, что пришло на карту, и считаю это доходом", score: 0 },
+      { text: "Знаю примерно, но не считал(а) точно", score: 1 },
+      { text: "Стараюсь не думать об этом — тревожно", score: 0 },
+    ]
+  },
+  {
+    text: "Когда у вас появляются «лишние» деньги, что происходит первым?",
+    options: [
+      { text: "Сразу трачу — заработаю ещё", score: 0 },
+      { text: "Откладываю часть, остальное планирую", score: 2 },
+      { text: "Хочу отложить, но в итоге расходы находятся сами", score: 1 },
+      { text: "Инвестирую или направляю в развитие", score: 2 },
+    ]
+  },
+  {
+    text: "Что из этого больше всего описывает ваши отношения с деньгами?",
+    options: [
+      { text: "Деньги приходят нестабильно, и это тревожит", score: 0 },
+      { text: "Зарабатываю хорошо, но куда уходит — непонятно", score: 1 },
+      { text: "Есть система, понимаю свой доход и расходы", score: 2 },
+      { text: "Много работаю, но на выходе меньше, чем ожидаю", score: 0 },
+    ]
+  },
+  {
+    text: "Как вы относитесь к повышению своих цен?",
+    options: [
+      { text: "Боюсь, что уйдут клиенты — поэтому не повышаю", score: 0 },
+      { text: "Повышаю, когда чувствую, что переросла текущий уровень", score: 2 },
+      { text: "Хочу поднять, но всегда нахожу причину отложить", score: 1 },
+      { text: "Думаю, что и так берут мало, но решиться сложно", score: 0 },
+    ]
+  }
+];
+
+const results = [
+  {
+    min: 0, max: 3,
+    icon: "🌀",
+    title: "Сценарий выживания",
+    subtitle: "Деньги приходят и уходят, система отсутствует",
+    traits: ["Нестабильный доход", "Тревога вокруг денег", "Работа «за всё подряд»", "Цена занижена"],
+    description: "Вы много работаете, но деньги не накапливаются. Скорее всего, вы берёте заказы из страха, а не выбора. Цену снижаете при первом же возражении. Финансовый учёт вызывает тревогу, поэтому его нет. Это не про лень — это про сценарий, который был сформирован давно и сейчас управляет вашими решениями.",
+    advice: "Первый шаг — не поиск новых клиентов, а остановка и честный подсчёт: сколько вы реально зарабатываете и сколько стоит ваш час. Без этой цифры любые действия идут вслепую."
+  },
+  {
+    min: 4, max: 6,
+    icon: "⚡",
+    title: "Сценарий хаоса",
+    subtitle: "Потенциал есть, но нет системы",
+    traits: ["Доход нерегулярный", "Деньги «утекают»", "Хочется роста, но страшно", "Цену держать сложно"],
+    description: "Вы умеете зарабатывать, но деньги не слушаются. Хорошие месяцы сменяются пустыми. Вы знаете, что могли бы брать дороже, но каждый раз что-то мешает. Скорее всего, внутри есть убеждение, что большой доход нужно «заслужить» или что ваша работа не стоит столько, сколько вы на самом деле хотите.",
+    advice: "Ваша задача — перейти от ощущений к цифрам. Начните с простого: три месяца честного учёта доходов и расходов. Хаос проявляется именно там, где нет ясности."
+  },
+  {
+    min: 7, max: 8,
+    icon: "🔑",
+    title: "Сценарий роста",
+    subtitle: "Фундамент есть — нужно масштабировать",
+    traits: ["Стабильный доход", "Понимаете цифры", "Готовы к следующему уровню", "Умеете держать цену"],
+    description: "У вас уже есть системное мышление вокруг денег. Вы считаете, планируете и не снижаете цену при первом «дорого». Скорее всего, вы чувствуете, что упёрлись в потолок — не потому что делаете что-то не так, а потому что текущая модель заработка уже исчерпала свой потенциал.",
+    advice: "Ваш следующий шаг — не больше работы, а другая модель. Посмотрите, где вы продаёте время, а не результат. Именно там скрыт ваш следующий уровень дохода."
+  },
+  {
+    min: 9, max: 10,
+    icon: "🏆",
+    title: "Сценарий системы",
+    subtitle: "Вы мыслите как предприниматель",
+    traits: ["Чёткое понимание цифр", "Уверенное ценообразование", "Стратегический подход", "Деньги как инструмент"],
+    description: "Вы уже выстроили финансовое мышление: считаете реальный доход, держите цену, управляете деньгами осознанно. Вы не зарабатываете больше — вы зарабатываете умнее. Но такой уровень требует постоянной работы: сценарии возвращаются в моменты стресса, роста или новых уровней.",
+    advice: "На вашем уровне важно не потерять систему при масштабировании. Разберите, какие убеждения могут проявиться при 2-кратном росте дохода — они уже есть, просто ещё не активированы."
+  }
+];
+
+let current = 0;
+let scores = [];
+let selectedOption = null;
+
+function getResult(total) {
+  return results.find(r => total >= r.min && total <= r.max) || results[0];
+}
+
+function renderQuestion() {
+  const q = questions[current];
+  const letters = ['А', 'Б', 'В', 'Г'];
+  selectedOption = null;
+
+  const html = `
+    <div class="question-card" id="qCard">
+      <div class="question-num">Вопрос ${current + 1}</div>
+      <div class="question-text">${q.text}</div>
+      <div class="options">
+        ${q.options.map((o, i) => `
+          <div class="option" onclick="selectOption(this, ${i})" data-index="${i}">
+            <div class="option-letter">${letters[i]}</div>
+            <div class="option-text">${o.text}</div>
+          </div>
+        `).join('')}
+      </div>
+      <button class="btn-next" id="btnNext" onclick="nextQuestion()">
+        ${current < questions.length - 1 ? 'Следующий вопрос →' : 'Узнать мой сценарий →'}
+      </button>
+    </div>
+  `;
+
+  document.getElementById('questionArea').innerHTML = html;
+  updateProgress();
+}
+
+function selectOption(el, index) {
+  document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedOption = index;
+  const btn = document.getElementById('btnNext');
+  btn.classList.add('visible');
+}
+
+function nextQuestion() {
+  if (selectedOption === null) return;
+  scores.push(questions[current].options[selectedOption].score);
+  current++;
+
+  if (current < questions.length) {
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function updateProgress() {
+  const pct = ((current + 1) / questions.length) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressCount').textContent = `${current + 1} / ${questions.length}`;
+}
+
+function showResult() {
+  const total = scores.reduce((a, b) => a + b, 0);
+  const r = getResult(total);
+
+  document.getElementById('questionArea').innerHTML = '';
+  document.getElementById('progressWrap').style.display = 'none';
+
+  const traits = r.traits.map(t => `<span class="trait">${t}</span>`).join('');
+
+  const html = `
+    <div class="result-header">
+      <span class="result-icon">${r.icon}</span>
+      <div class="result-eyebrow">Ваш результат</div>
+      <div class="result-title">${r.title}</div>
+      <div class="result-subtitle">${r.subtitle}</div>
+    </div>
+
+    <div class="result-body">
+      <div class="result-section-label">Ваши маркеры</div>
+      <div class="result-traits">${traits}</div>
+
+      <div class="result-section-label">Что происходит</div>
+      <div class="result-description">${r.description}</div>
+
+      <div class="result-advice">
+        <div class="result-advice-label">Конкретный шаг прямо сейчас</div>
+        <p>${r.advice}</p>
+      </div>
+    </div>
+
+    <div class="cta-block">
+      <strong>Хотите разобрать свой сценарий глубже?</strong>
+      <p>Провожу бесплатную диагностику — видеовстреча 30 минут. Разберём, что именно держит ваш доход на месте, и что с этим делать конкретно в вашей ситуации.</p>
+      <p style="font-size:16px; color: var(--gold-light); font-weight: 600; margin-bottom: 8px;">Напишите мне в личку:<br>👉 <a href="https://t.me/m/o8FMNCk5OTJk" target="_blank" style="color: var(--gold-light); text-decoration: underline;">@marina_businesss</a></p>
+      <p style="font-size:22px; font-weight:800; letter-spacing: 0.5px;"><a href="https://t.me/m/o8FMNCk5OTJk" target="_blank" style="color: var(--gold-light); text-decoration: underline; text-underline-offset: 4px;">«Хочу разбор»</a></p>
+    </div>
+
+    <button class="btn-restart" onclick="restart()">Пройти тест заново</button>
+  `;
+
+  const resultCard = document.getElementById('resultCard');
+  resultCard.innerHTML = html;
+  resultCard.classList.add('visible');
+  resultCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function restart() {
+  current = 0;
+  scores = [];
+  selectedOption = null;
+  document.getElementById('resultCard').classList.remove('visible');
+  document.getElementById('resultCard').innerHTML = '';
+  document.getElementById('progressWrap').style.display = 'block';
+  renderQuestion();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+renderQuestion();
+</script>
+</body>
+</html>
